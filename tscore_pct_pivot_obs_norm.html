@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>T-Score Bell Curve — Normative + Examinee</title>
+<style>
+:root{
+  --bg:#f4f7fb;--card:#fff;--norm:#1565c0;--exam:#e67e22;
+  --accent:#2e86c1;--border:#d0dce8;--text:#1c2833;--sub:#5d6d7e;
+  --sh:0 4px 18px rgba(0,0,0,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{background:linear-gradient(135deg,#1a3a5c,#2e86c1);color:#fff;padding:16px 32px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,.18);}
+header .ic{font-size:2rem;}
+header h1{font-size:1.15rem;font-weight:700;}
+header p{font-size:.78rem;opacity:.82;margin-top:2px;}
+.nb{display:inline-block;background:#fff3cd;color:#856404;border:1.5px solid #ffc107;border-radius:7px;padding:2px 9px;font-size:.75rem;font-weight:700;margin-left:7px;}
+.layout{display:grid;grid-template-columns:370px 1fr;gap:18px;padding:18px 26px;max-width:1600px;margin:0 auto;align-items:start;}
+@media(max-width:1000px){.layout{grid-template-columns:1fr;padding:10px;}}
+.card{background:var(--card);border-radius:14px;box-shadow:var(--sh);padding:16px;border:1px solid var(--border);}
+.card+.card{margin-top:14px;}
+.card h2{font-size:.90rem;font-weight:700;color:var(--accent);margin-bottom:11px;border-bottom:2px solid var(--border);padding-bottom:7px;display:flex;align-items:center;gap:6px;}
+.card-b{border-left:4px solid #27ae60;background:linear-gradient(135deg,#f0fdf4 0%,#fff 60%);}
+.card-b h2{color:#1a7a3c;border-bottom-color:#a8e6c0;}
+.ch-lbl{display:flex;align-items:center;gap:7px;font-size:.83rem;font-weight:700;padding:5px 9px;border-radius:8px;margin-bottom:8px;}
+.ch-norm{background:#e3f0fc;color:var(--norm);}
+.sg{margin-bottom:10px;}
+.sg label{display:flex;justify-content:space-between;align-items:center;font-size:.81rem;font-weight:600;margin-bottom:4px;}
+.vb{font-size:.90rem;font-weight:700;padding:2px 8px;border-radius:18px;min-width:46px;text-align:center;}
+.vb-norm{color:var(--norm);background:#dbeeff;}
+.vb-ci{color:#0e6655;background:#d1f2eb;font-size:.88rem;}
+.vb-skew{color:#6e2f00;background:#fde8d8;font-size:.88rem;}
+.sl-skew{background:linear-gradient(to right,#e67e22 0%,#e67e22 var(--p,50%),#ddd var(--p,50%),#ddd 100%);}
+.sl-skew::-webkit-slider-thumb{background:#e67e22;}
+.sl-ci{background:linear-gradient(to right,#1abc9c 0%,#1abc9c var(--p,80%),#ddd var(--p,80%),#ddd 100%);}
+.sl-ci::-webkit-slider-thumb{background:#1abc9c;}
+input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:4px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,.2);cursor:grab;}
+.sl-norm{background:linear-gradient(to right,var(--norm) 0%,var(--norm) var(--p,50%),#ddd var(--p,50%),#ddd 100%);}
+.sl-norm::-webkit-slider-thumb{background:var(--norm);}
+.hint{font-size:.71rem;color:var(--sub);margin-top:2px;}
+.div{border:none;border-top:1px dashed var(--border);margin:10px 0;}
+.presets{display:flex;flex-wrap:wrap;gap:5px;margin-top:3px;}
+.pb{font-size:.71rem;font-weight:600;padding:3px 9px;border-radius:14px;border:1.5px solid;background:transparent;cursor:pointer;transition:all .15s;}
+.pb-norm{border-color:var(--norm);color:var(--norm);}
+.pb-norm:hover,.pb-norm.on{background:var(--norm);color:#fff;}
+.pb-ci{border-color:#1abc9c;color:#0e6655;}
+.pb-ci:hover,.pb-ci.on{background:#1abc9c;color:#fff;}
+.pb-skew{border-color:#e67e22;color:#6e2f00;}
+.pb-skew:hover,.pb-skew.on{background:#e67e22;color:#fff;}
+.ac{display:flex;gap:7px;flex-wrap:wrap;margin-top:5px;}
+.btn{flex:1;min-width:60px;padding:7px 5px;border-radius:7px;border:none;font-size:.77rem;font-weight:700;cursor:pointer;transition:all .16s;display:flex;align-items:center;justify-content:center;gap:4px;}
+.bp{background:#1abc9c;color:#fff;}.bs{background:#e74c3c;color:#fff;}.br{background:#7f8c8d;color:#fff;}.bsn{background:var(--accent);color:#fff;}
+.btn:hover{opacity:.87;transform:translateY(-1px);}
+.spr{display:flex;align-items:center;gap:7px;margin-top:10px;font-size:.77rem;color:var(--sub);}
+.spr input{flex:1;}
+.score-grid-wrap{overflow-x:auto;margin-bottom:6px;}
+.score-grid{border-collapse:collapse;width:100%;}
+.score-grid td{padding:1px;}
+.score-grid td input{width:100%;padding:3px 2px;border:1px solid #d0dce8;border-radius:4px;font-size:.78rem;text-align:center;background:#fafcff;transition:border-color .15s;}
+.score-grid td input:focus{border-color:var(--exam);outline:none;background:#fff8f0;}
+.n-count{font-size:.72rem;color:var(--sub);text-align:right;margin-bottom:5px;}
+.compute-btn{width:100%;padding:8px;background:var(--exam);color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;margin-bottom:8px;}
+.compute-btn:hover{opacity:.88;}
+.clear-btn{width:100%;padding:6px;background:#e74c3c;color:#fff;border:none;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;margin-top:6px;}
+.clear-btn:hover{opacity:.88;}
+.stats-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:4px;}
+.stat-box{flex:1;min-width:52px;background:#f8f9fa;border:1px solid var(--border);border-radius:8px;padding:5px 4px;text-align:center;}
+.sl{font-size:.67rem;color:var(--sub);font-weight:600;}
+.sv{font-size:.88rem;font-weight:800;color:var(--text);}
+.skew-box{background:linear-gradient(135deg,#fff8f0,#fdebd0);border:1.5px solid #f39c12;border-radius:9px;padding:8px 10px;margin-top:7px;display:flex;align-items:center;gap:10px;}
+.skew-box .sk-label{font-size:.72rem;font-weight:700;color:#856404;white-space:nowrap;}
+.skew-box .sk-val{font-size:1.1rem;font-weight:900;color:#e67e22;}
+.skew-box .sk-interp{font-size:.70rem;color:#7d6608;font-style:italic;}
+.freq-table{width:100%;border-collapse:collapse;font-size:.78rem;}
+.freq-table th{background:#fff3e0;color:#a04000;font-weight:700;padding:4px 7px;text-align:left;border-bottom:2px solid #f0d9c0;}
+.freq-table td{padding:3px 7px;border-bottom:1px solid #fdf0e0;}
+.freq-bar-wrap{background:#f5e6d3;border-radius:4px;height:7px;overflow:hidden;min-width:50px;}
+.freq-bar{background:linear-gradient(90deg,#e67e22,#f39c12);height:7px;border-radius:4px;}
+.lookup-box{}
+.lookup-input-row{display:flex;gap:7px;margin-bottom:9px;}
+.lookup-input-row input{flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;}
+.lookup-input-row button{padding:7px 14px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.82rem;}
+.lookup-results{display:flex;flex-direction:column;gap:6px;}
+.lr-pred-count{background:linear-gradient(135deg,#eaf4fb,#d6eaf8);border:1.5px solid #2e86c1;border-radius:9px;padding:8px 10px;}
+.lr-pred-count .pc-title{font-size:.75rem;font-weight:800;color:#1a5276;display:flex;align-items:center;gap:5px;margin-bottom:3px;}
+.lr-pred-count .pc-main{font-size:1.35rem;font-weight:900;color:#1565c0;line-height:1.1;}
+.lr-pred-count .pc-sub{font-size:.70rem;color:#1a5276;margin-top:2px;font-weight:600;}
+.lr-pred-count .pc-bar-wrap{background:#aed6f1;border-radius:5px;height:7px;margin-top:5px;overflow:hidden;}
+.lr-pred-count .pc-bar{background:linear-gradient(90deg,#1565c0,#2e86c1);height:7px;border-radius:5px;transition:width .3s;}
+.lr-skew-pred{background:linear-gradient(135deg,#f5eef8,#e8daef);border:1.5px solid #8e44ad;border-radius:9px;padding:8px 10px;margin-top:6px;}
+.lr-skew-pred .sp-title{font-size:.75rem;font-weight:800;color:#6c3483;display:flex;align-items:center;gap:5px;margin-bottom:5px;}
+.lr-skew-pred .sp-row{display:flex;align-items:baseline;gap:6px;margin-bottom:3px;}
+.lr-skew-pred .sp-label{font-size:.72rem;font-weight:700;min-width:100px;color:#6c3483;}
+.lr-skew-pred .sp-val{font-size:1.10rem;font-weight:900;color:#6c3483;line-height:1.1;}
+.lr-skew-pred .sp-of{font-size:.82rem;font-weight:700;color:#7d3c98;}
+.lr-skew-pred .sp-sub{font-size:.68rem;color:#7d3c98;margin-left:4px;}
+.lr-skew-pred .sp-bar-wrap{background:#d7bde2;border-radius:5px;height:5px;margin-top:2px;margin-bottom:5px;overflow:hidden;}
+.lr-skew-pred .sp-bar{background:linear-gradient(90deg,#8e44ad,#a569bd);height:5px;border-radius:5px;transition:width .3s;}
+.lr-ci-count{background:linear-gradient(135deg,#f0f7ff,#ddeeff);border:1.5px solid #5dade2;border-radius:9px;padding:8px 10px;}
+.lr-ci-count .ci-title{font-size:.75rem;font-weight:800;color:#1a5276;display:flex;align-items:center;gap:5px;margin-bottom:3px;}
+.lr-ci-count .ci-main{font-size:1.1rem;font-weight:900;color:#1565c0;line-height:1.2;}
+.lr-ci-count .ci-pct{font-size:.75rem;font-weight:700;color:#2471a3;margin-top:2px;}
+.lr-ci-count .ci-sub{font-size:.68rem;color:#2471a3;margin-top:2px;}
+.lr-ci-count .ci-bar-wrap{background:#aed6f1;border-radius:5px;height:9px;margin-top:6px;overflow:hidden;position:relative;}
+.lr-ci-count .ci-bar-range{background:linear-gradient(90deg,#5dade2,#2e86c1);height:9px;border-radius:3px;position:absolute;}
+.lr-ci-count .ci-bar-center{background:#1565c0;width:3px;height:9px;position:absolute;border-radius:2px;}
+.lr-empty{font-size:.78rem;color:var(--sub);text-align:center;padding:10px 0;}
+.lr{display:flex;flex-direction:column;gap:2px;padding:7px 10px;border-radius:9px;border:1.5px solid;}
+.lr-norm{background:#eaf4fb;border-color:#aed6f1;color:#1a5276;}
+.lr-exam{background:#fef5e7;border-color:#f9d5a7;color:#784212;}
+.curve-name{font-size:.78rem;font-weight:700;}
+.count-val{font-size:1.35rem;font-weight:900;line-height:1.1;}
+.dir-label{font-size:.68rem;opacity:.8;margin-top:2px;}
+.lr-exam-count{background:linear-gradient(135deg,#fef9f0,#fdebd0);border:1.5px solid #f39c12;border-radius:9px;padding:8px 10px;}
+.lr-exam-count .oc-title{font-size:.75rem;font-weight:800;color:#a04000;display:flex;align-items:center;gap:5px;margin-bottom:3px;}
+.lr-exam-count .oc-main{font-size:1.35rem;font-weight:900;color:#784212;line-height:1.1;}
+.lr-exam-count .oc-sub{font-size:.70rem;color:#a04000;margin-top:2px;font-weight:600;}
+.lr-exam-count .oc-bar-wrap{background:#fde8c8;border-radius:5px;height:7px;margin-top:5px;overflow:hidden;}
+.lr-exam-count .oc-bar{background:linear-gradient(90deg,#e67e22,#f39c12);height:7px;border-radius:5px;transition:width .3s;}
+.lr-examB{background:#eafaf1;border-color:#a9dfbf;color:#145a32;}
+.lr-examB-count{background:linear-gradient(135deg,#eafaf1,#d5f5e3);border:1.5px solid #27ae60;border-radius:9px;padding:8px 10px;}
+.lr-examB-count .oc-title{font-size:.75rem;font-weight:800;color:#145a32;display:flex;align-items:center;gap:5px;margin-bottom:3px;}
+.lr-examB-count .oc-main{font-size:1.35rem;font-weight:900;color:#1a5c34;line-height:1.1;}
+.lr-examB-count .oc-sub{font-size:.70rem;color:#1e8449;margin-top:2px;font-weight:600;}
+.lr-examB-count .oc-bar-wrap{background:#a9dfbf;border-radius:5px;height:7px;margin-top:5px;overflow:hidden;}
+.lr-examB-count .oc-bar{background:linear-gradient(90deg,#27ae60,#2ecc71);height:7px;border-radius:5px;transition:width .3s;}
+.lr-cohend{background:linear-gradient(135deg,#fdfefe,#eaf2f8);border:1.5px solid #2980b9;border-radius:9px;padding:8px 10px;margin-top:6px;}
+.ese-card{background:linear-gradient(135deg,#fef9ff,#f0e6ff);border:2px solid #8e44ad;border-radius:10px;padding:10px 12px;margin-top:0;}
+.ese-card h2{font-size:.82rem;font-weight:800;color:#6c3483;margin:0 0 8px;display:flex;align-items:center;gap:6px;}
+.ese-slider-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.ese-slider-row label{font-size:.72rem;font-weight:700;color:#6c3483;white-space:nowrap;min-width:110px;}
+.ese-slider-row input[type=range]{flex:1;height:5px;border-radius:4px;cursor:pointer;}
+.ese-slider-row .ese-val{font-size:.78rem;font-weight:800;color:#6c3483;min-width:34px;text-align:right;}
+.ese-exact-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.ese-exact-row label{font-size:.70rem;font-weight:700;color:#6c3483;white-space:nowrap;min-width:110px;}
+.ese-exact-row input[type=number]{width:72px;padding:3px 5px;border:1.5px solid #8e44ad;border-radius:5px;font-size:.75rem;font-weight:700;color:#6c3483;text-align:center;background:#fdf5ff;}
+.ese-sd-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.ese-sd-row label{font-size:.70rem;font-weight:700;color:#6c3483;white-space:nowrap;min-width:110px;}
+.ese-sd-row input[type=number]{width:72px;padding:3px 5px;border:1.5px solid #8e44ad;border-radius:5px;font-size:.75rem;font-weight:700;color:#6c3483;text-align:center;background:#fdf5ff;}
+.ese-note{font-size:.62rem;color:#7d3c98;background:rgba(142,68,173,.08);border-radius:5px;padding:4px 7px;margin-bottom:8px;}
+.ese-table{width:100%;border-collapse:collapse;margin-top:4px;}
+.ese-table th{font-size:.65rem;font-weight:700;color:#6c3483;text-align:left;padding:3px 6px;border-bottom:1.5px solid #c39bd3;}
+.ese-table td{font-size:.71rem;padding:4px 6px;vertical-align:middle;}
+.ese-table tr:nth-child(even) td{background:rgba(142,68,173,.06);}
+.ese-d-pos{color:#1a5276;font-weight:800;}
+.ese-d-neg{color:#922b21;font-weight:800;}
+.ese-r{color:#1e8449;font-weight:700;}
+.ese-delta{font-size:.65rem;font-style:italic;}
+.ese-empty{font-size:.75rem;color:#7d3c98;padding:6px 0;}
+.ese-reset-btn{padding:4px 10px;background:#8e44ad;color:#fff;border:none;border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer;margin-top:6px;}
+.ese-reset-btn:hover{background:#6c3483;}
+.lr-cohend .cd-title{font-size:.75rem;font-weight:800;color:#1a5276;display:flex;align-items:center;gap:5px;margin-bottom:6px;}
+.lr-cohend .cd-table{width:100%;border-collapse:collapse;}
+.lr-cohend .cd-table th{font-size:.65rem;font-weight:700;color:#2471a3;text-align:left;padding:2px 5px;border-bottom:1px solid #aed6f1;}
+.lr-cohend .cd-table td{font-size:.71rem;padding:3px 5px;vertical-align:middle;}
+.lr-cohend .cd-table tr:nth-child(even) td{background:rgba(93,173,226,.07);}
+.cd-table{width:100%;border-collapse:collapse;}
+.cd-table th{font-size:.65rem;font-weight:700;color:#2471a3;text-align:left;padding:2px 5px;border-bottom:1px solid #aed6f1;}
+.cd-table td{font-size:.71rem;padding:3px 5px;vertical-align:middle;}
+.cd-table tr:nth-child(even) td{background:rgba(93,173,226,.07);}
+.cd-d{font-weight:900;font-size:.88rem;color:#1565c0;}
+.cd-r{font-weight:800;font-size:.82rem;color:#2980b9;}
+.cd-interp{font-size:.64rem;padding:1px 5px;border-radius:10px;font-weight:700;display:inline-block;margin-left:3px;}
+.cd-neg{color:#c0392b;}.cd-pos{color:#1a7a3c;}
+.cd-sm{background:#d5f5e3;color:#1a7a3c;}.cd-md{background:#fef9e7;color:#9a7d0a;}.cd-lg{background:#fdebd0;color:#a04000;}.cd-xl{background:#fdedec;color:#c0392b;}
+.chart-wrap{display:flex;flex-direction:column;}
+canvas#ch{width:100%!important;border-radius:10px;}
+.iq-wrap{width:100%;height:46px;margin-top:1px;background:rgba(255,255,255,.6);border-radius:0 0 8px 8px;border-top:1px dashed #ddd;}
+#iqC{width:100%;height:46px;display:block;}
+.leg{display:flex;flex-wrap:wrap;gap:10px;padding:10px 4px 0;justify-content:center;}
+.li{display:flex;align-items:center;gap:6px;font-size:.76rem;font-weight:600;}
+.ll{width:26px;height:3px;border-radius:2px;}
+.ll-norm{background:var(--norm);}
+.ll-exam{background:var(--exam);}
+.ll-examB{background:#27ae60;}
+.compute-btn-b{width:100%;padding:8px;background:linear-gradient(135deg,#27ae60,#1e8449);color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;margin-top:6px;transition:all .16s;}
+.compute-btn-b:hover{opacity:.88;transform:translateY(-1px);}
+.clear-btn-b{width:100%;padding:6px;background:#1e8449;color:#fff;border:none;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;margin-top:6px;}
+.clear-btn-b:hover{opacity:.88;}
+.vb-skew-b{color:#145a32;background:#d5f5e3;font-size:.88rem;}
+.sl-skew-b{background:linear-gradient(to right,#27ae60 0%,#27ae60 var(--p,50%),#ddd var(--p,50%),#ddd 100%);}
+.sl-skew-b::-webkit-slider-thumb{background:#27ae60;}
+.skew-precise{width:62px;font-size:.80rem;font-weight:700;padding:2px 5px;border-radius:6px;border:1.5px solid #ccc;text-align:center;outline:none;margin-left:4px;}
+.skew-precise:focus{border-color:#8e44ad;box-shadow:0 0 0 2px rgba(142,68,173,.18);}
+.pb-skew-b{border-color:#27ae60;color:#145a32;}
+.pb-skew-b:hover,.pb-skew-b.on{background:#27ae60;color:#fff;}
+.pi{font-size:.70rem;color:var(--sub);background:#f8f9fa;border-radius:8px;padding:8px 10px;margin-top:9px;line-height:1.65;border:1px solid var(--border);}
+.st{width:100%;border-collapse:collapse;font-size:.80rem;}
+.st th{background:#eaf4fb;color:var(--accent);font-weight:700;padding:5px 8px;text-align:left;border-bottom:2px solid var(--border);}
+.st td{padding:4px 8px;border-bottom:1px solid #eef1f5;}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:middle;}
+#snapMsg{position:fixed;bottom:24px;right:24px;background:#1abc9c;color:#fff;padding:10px 20px;border-radius:10px;font-weight:700;font-size:.88rem;box-shadow:0 4px 14px rgba(0,0,0,.2);opacity:0;transition:opacity .4s;pointer-events:none;z-index:999;}
+</style>
+</head>
+<body>
+<header>
+  <div class="ic">🔔</div>
+  <div>
+    <h1>T-Score Bell Curve — Normative + Examinee <span class="nb">Bell Curve</span></h1>
+    <p>Gaussian bell curves · Peak = 50 at each mean · Normative μ=adjustable · Examinee=computed</p>
+  </div>
+</header>
+
+<div class="layout">
+<aside>
+  <!-- LOOKUP BOX -->
+  <div class="card lookup-box">
+    <h2>🔍 T-Score Lookup</h2>
+    <div class="lookup-input-row">
+      <input type="number" id="lookupInput" min="10" max="80" step="1" placeholder="e.g. 47" oninput="runLookup()" onkeydown="if(event.key==='Enter')runLookup()"/>
+      <button onclick="runLookup()">Look Up</button>
+    </div>
+    <div class="lookup-results" id="lookupResults">
+      <div class="lr-empty">Enter a T-score (10–80) to see the cumulative percentile (% of scores at or below) for each curve.</div>
+    </div>
+  </div>
+
+  <!-- COHEN'S d PERSISTENT CARD -->
+  <div class="card" id="cohendCard" style="margin-top:0;">
+    <h2>📊 Effect Sizes — Cohen's <i>d</i> &amp; <i>r</i></h2>
+    <div id="cohendCardBody">
+      <div class="lr-empty">Compute at least one examinee dataset to see effect sizes.</div>
+    </div>
+  </div>
+
+  <!-- EFFECT SIZE EXPLORER PANEL -->
+  <div class="ese-card" id="eseCard" style="margin-top:0;">
+    <h2>&#128300; Effect Size Explorer &#8212; Adjust Normative Mean</h2>
+    <div class="ese-note">
+      This panel uses an <strong>independent</strong> normative mean for what-if exploration.
+      It does <em>not</em> change the main chart. Adjust below to see how effect sizes shift.
+    </div>
+    <div class="ese-slider-row">
+      <label>Norm &#956; (explorer):</label>
+      <input type="range" id="eseNrmMu" min="10" max="80" step="0.5" value="50"
+             oninput="updateESE()" style="accent-color:#8e44ad;">
+      <span class="ese-val" id="eseNrmMuVal">50.0</span>
+    </div>
+    <div class="ese-exact-row">
+      <label>Precise &#956;:</label>
+      <input type="number" id="eseNrmMuExact" min="10" max="80" step="0.1" value="50"
+             oninput="eseSetMuExact(this.value)">
+    </div>
+    <div class="ese-sd-row">
+      <label>Norm &#963; (explorer):</label>
+      <input type="number" id="eseNrmSd" min="1" max="30" step="0.5" value="10"
+             oninput="updateESE()">
+    </div>
+    <button class="ese-reset-btn" onclick="eseReset()">&#8635; Reset to Chart Values</button>
+    <div id="eseBody" style="margin-top:10px;">
+      <div class="ese-empty">Compute at least one examinee dataset to see effect sizes.</div>
+    </div>
+  </div>
+
+  <!-- DISTRIBUTION CONTROLS -->
+  <div class="card">
+    <h2>🎛️ Distribution Controls</h2>
+    <div class="ch-lbl ch-norm">🔵 Normative — σ=10.0, μ & skew adjustable</div>
+    <div class="sg">
+      <label>Normative Mean μ <span class="vb vb-norm" id="nMV">50.0</span></label>
+      <input type="range" id="nMu" class="sl-norm" min="10" max="80" step="0.5" value="50" oninput="upNorm()">
+      <div class="hint">Slide to move the normative bell curve left or right</div>
+    </div>
+    <div class="presets">
+      <button class="pb pb-norm" onclick="setNM(30)">T=30</button>
+      <button class="pb pb-norm" onclick="setNM(39)">T=39</button>
+      <button class="pb pb-norm" onclick="setNM(43)">T=43</button>
+      <button class="pb pb-norm on" onclick="setNM(50)">T=50 ★</button>
+      <button class="pb pb-norm" onclick="setNM(60)">T=60</button>
+      <button class="pb pb-norm" onclick="setNM(70)">T=70</button>
+    </div>
+
+  <div class="div"></div>
+  <div class="sg">
+    <label>
+      <span>〰️ Normative Skew α</span>
+      <span class="vb vb-skew" id="nSkewLbl">+0.0</span>
+    </label>
+    <input type="range" id="nSkew" class="sl-skew" min="-3" max="3" step="0.1" value="0"
+           style="--p:50%"
+           oninput="upNorm()">
+    <div class="hint">−3 = strong left skew · 0 = symmetric · +3 = strong right skew</div>
+    <div class="presets" id="skPre" style="margin-top:6px;">
+      <button class="pb pb-skew" onclick="setSkew(-2)">−2</button>
+      <button class="pb pb-skew" onclick="setSkew(-1)">−1</button>
+      <button class="pb pb-skew on" onclick="setSkew(0)">0 ★</button>
+      <button class="pb pb-skew" onclick="setSkew(1)">+1</button>
+      <button class="pb pb-skew" onclick="setSkew(2)">+2</button>
+    </div>
+  </div>
+
+  <div class="div"></div>
+  <div class="sg">
+    <label>
+      <span>📏 Confidence Interval Level</span>
+      <span class="vb vb-ci" id="ciLbl">90%</span>
+    </label>
+    <input type="range" id="ciLvl" class="sl-ci" min="50" max="95" step="1" value="90"
+           style="--p:80%"
+           oninput="updateCISlider(this)">
+    <div class="hint">Sets the CI level used in the Confidence Interval lookup card (50%–95%).</div>
+    <div class="presets" id="ciPre" style="margin-top:6px;">
+      <button class="pb pb-ci" onclick="setCILevel(68)">68%</button>
+      <button class="pb pb-ci" onclick="setCILevel(80)">80%</button>
+      <button class="pb pb-ci on"  onclick="setCILevel(90)">90%</button>
+      <button class="pb pb-ci" onclick="setCILevel(95)">95%</button>
+    </div>
+  </div>
+
+    <div class="pi">
+      <b>Bell curve formula:</b> Y = PDF((x−μ)/σ) / PDF(0) × 50<br>
+      Peak = 50 at each mean · Symmetric Gaussian shape<br>
+      🟠 <b>Examinee</b>: μ &amp; σ computed from entered scores
+    </div>
+  </div>
+
+  <!-- ANIMATION -->
+  <div class="card">
+    <h2>▶️ Animation — Normative Mean Sweep</h2>
+    <div class="ac">
+      <button class="btn bp" id="bPl" onclick="startAnim()">▶ Play</button>
+      <button class="btn bs" id="bSt" onclick="stopAnim()" disabled>⏹ Stop</button>
+      <button class="btn br" onclick="resetAll()">↺ Reset</button>
+    </div>
+    <div class="spr">
+      <span>🐢</span><input type="range" id="spd" min="1" max="10" step="1" value="4"><span>🐇</span>
+      <span id="sLbl" style="min-width:44px;font-weight:700;color:var(--accent);">Speed 4</span>
+    </div>
+    <div class="div"></div>
+    <button class="btn bsn" style="width:100%;" onclick="snapPNG()">📸 Export PNG</button>
+  </div>
+
+  <!-- EXAMINEE T-SCORE ENTRY -->
+  <div class="card">
+    <h2>🟠 Examinee T-Score Entry (up to 100)</h2>
+    <div class="score-grid-wrap">
+      <table class="score-grid" id="scoreGrid"></table>
+    </div>
+    <div class="n-count" id="nCount">Filled: 0 / 100</div>
+    <button class="compute-btn" onclick="computeExaminee()">▶ Compute &amp; Plot Examinee Bell Curve</button>
+    <div class="stats-row">
+      <div class="stat-box"><div class="sl">Mean</div><div class="sv" id="stMean">—</div></div>
+      <div class="stat-box"><div class="sl">Median</div><div class="sv" id="stMed">—</div></div>
+      <div class="stat-box"><div class="sl">Mode</div><div class="sv" id="stMode">—</div></div>
+      <div class="stat-box"><div class="sl">SD</div><div class="sv" id="stSD">—</div></div>
+      <div class="stat-box"><div class="sl">N</div><div class="sv" id="stN">—</div></div>
+    </div>
+    <div class="skew-box" id="skewBox" style="display:none;">
+      <div>
+        <div class="sk-label">📐 Estimated Skewness</div>
+        <div class="sk-val" id="skewVal">—</div>
+        <div class="sk-interp" id="skewInterp">—</div>
+      </div>
+    </div>
+    <div class="sg" style="margin-top:8px;">
+      <label>
+        <span>〰️ Examinee Curve Skew α</span>
+        <span class="vb vb-skew" id="eSkewLbl">+0.000</span>
+        <input type="number" id="eSkewExact" class="skew-precise" min="-3" max="3" step="0.01" value="0"
+               title="Type exact skew value (−3 to +3)"
+               oninput="setExamSkewExact(this.value)">
+      </label>
+      <input type="range" id="eSkew" class="sl-skew" min="-3" max="3" step="0.01" value="0"
+             style="--p:50%"
+             oninput="updateExamSkew(this)">
+      <div class="hint">−3 = strong left skew · 0 = symmetric · +3 = strong right skew</div>
+      <div class="presets" id="eSkPre" style="margin-top:6px;">
+        <button class="pb pb-skew" onclick="setExamSkew(-2)">−2</button>
+        <button class="pb pb-skew" onclick="setExamSkew(-1)">−1</button>
+        <button class="pb pb-skew on" onclick="setExamSkew(0)">0 ★</button>
+        <button class="pb pb-skew" onclick="setExamSkew(1)">+1</button>
+        <button class="pb pb-skew" onclick="setExamSkew(2)">+2</button>
+      </div>
+    </div>
+
+    <button class="clear-btn" onclick="clearScores()">✕ Clear All Scores</button>
+  </div>
+
+  <!-- EXAMINEE SCORE FREQUENCY -->
+  <div class="card" id="freqCard">
+    <h2>📊 Examinee Score Frequency</h2>
+    <div id="freqBody">
+      <div style="text-align:center;color:var(--sub);font-size:.78rem;padding:14px 0;">
+        Enter scores and click <b>▶ Compute</b> to see frequency table.
+      </div>
+    </div>
+  </div>
+
+  <!-- EXAMINEE B T-SCORE ENTRY -->
+  <div class="card card-b">
+    <h2>🟢 Examinee T-Score Entry B (up to 100)</h2>
+    <div class="score-grid-wrap">
+      <table class="score-grid" id="scoreGridB"></table>
+    </div>
+    <div class="n-count" id="nCountB">Filled: 0 / 100</div>
+    <button class="compute-btn-b" onclick="computeExamineeB()">▶ Compute &amp; Plot Examinee B Bell Curve</button>
+    <div class="stats-row">
+      <div class="stat-box"><div class="sl">Mean</div><div class="sv" id="stBMean">—</div></div>
+      <div class="stat-box"><div class="sl">Median</div><div class="sv" id="stBMed">—</div></div>
+      <div class="stat-box"><div class="sl">Mode</div><div class="sv" id="stBMode">—</div></div>
+      <div class="stat-box"><div class="sl">SD</div><div class="sv" id="stBSD">—</div></div>
+      <div class="stat-box"><div class="sl">N</div><div class="sv" id="stBN">—</div></div>
+    </div>
+    <div class="skew-box" id="skewBoxB" style="display:none;">
+      <div>
+        <div class="sk-label">📐 Estimated Skewness (B)</div>
+        <div class="sk-val" id="skewValB">—</div>
+        <div class="sk-interp" id="skewInterpB">—</div>
+      </div>
+    </div>
+    <div class="sg" style="margin-top:8px;">
+      <label>
+        <span>〰️ Examinee B Curve Skew α</span>
+        <span class="vb vb-skew-b" id="eBSkewLbl">+0.000</span>
+        <input type="number" id="eBSkewExact" class="skew-precise" min="-3" max="3" step="0.01" value="0"
+               title="Type exact skew value (−3 to +3)"
+               oninput="setExamBSkewExact(this.value)">
+      </label>
+      <input type="range" id="eBSkew" class="sl-skew-b" min="-3" max="3" step="0.01" value="0"
+             style="--p:50%"
+             oninput="updateExamBSkew(this)">
+      <div class="hint">−3 = strong left skew · 0 = symmetric · +3 = strong right skew</div>
+      <div class="presets" id="eBSkPre" style="margin-top:6px;">
+        <button class="pb pb-skew-b" onclick="setExamBSkew(-2)">−2</button>
+        <button class="pb pb-skew-b" onclick="setExamBSkew(-1)">−1</button>
+        <button class="pb pb-skew-b on" onclick="setExamBSkew(0)">0 ★</button>
+        <button class="pb pb-skew-b" onclick="setExamBSkew(1)">+1</button>
+        <button class="pb pb-skew-b" onclick="setExamBSkew(2)">+2</button>
+      </div>
+    </div>
+    <button class="clear-btn-b" onclick="clearScoresB()">✕ Clear All Scores (B)</button>
+  </div>
+
+  <!-- LIVE PARAMETERS -->
+  <div class="card">
+    <h2>📋 Live Parameters</h2>
+    <table class="st">
+      <thead><tr><th>Curve</th><th>μ</th><th>σ</th><th>α (skew)</th><th>Peak Y</th></tr></thead>
+      <tbody>
+        <tr><td><span class="dot" style="background:var(--norm)"></span>Normative</td><td id="tNM">50.0</td><td>10.0</td><td id="tNS">0.0</td><td>50</td></tr>
+        <tr><td><span class="dot" style="background:var(--exam)"></span>Examinee A</td><td id="tEM">—</td><td id="tES">—</td><td id="tESkew">—</td><td id="tEP">—</td></tr>
+        <tr><td><span class="dot" style="background:#27ae60"></span>Examinee B</td><td id="tBM">—</td><td id="tBS">—</td><td id="tBSkew">—</td><td id="tBP">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+</aside>
+
+<!-- RIGHT PANEL -->
+<main class="card chart-wrap">
+  <canvas id="ch" height="420"></canvas>
+  <div class="iq-wrap"><canvas id="iqC"></canvas></div>
+  <div class="leg">
+    <div class="li"><div class="ll ll-norm"></div><span id="lNorm">Normative (μ=50.0, σ=10.0)</span></div>
+    <div class="li"><div class="ll ll-exam"></div><span id="lExam">Examinee A T-score Distribution (not yet computed)</span></div>
+    <div class="li"><div class="ll ll-examB"></div><span id="lExamB">Examinee B T-score Distribution (not yet computed)</span></div>
+  </div>
+</main>
+</div>
+
+<div id="savedScores" style="display:none;"></div>
+<div id="savedScoresB" style="display:none;"></div>
+<div id="snapMsg">✅ PNG Downloaded!</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+const NORM_PDF0 = 1 / Math.sqrt(2 * Math.PI);
+function normPDF(z){ return Math.exp(-0.5*z*z) / Math.sqrt(2*Math.PI); }
+function bellVal(x, mu, sg){ return parseFloat(((normPDF((x-mu)/sg) / NORM_PDF0) * 50).toFixed(4)); }
+
+function skewNormPDF(x, mu, sg, alpha){
+  const z = (x - mu) / sg;
+  const phi = normPDF(z);
+  const Phi = 0.5 * (1 + erf(alpha * z / Math.SQRT2));
+  return 2 * phi * Phi / sg;
+}
+
+function skewNormPeak(sg, alpha){
+  const delta = alpha / Math.sqrt(1 + alpha * alpha);
+  return 2 * normPDF(delta * Math.sqrt(2 / Math.PI)) *
+         0.5 * (1 + erf(alpha * delta * Math.sqrt(2 / Math.PI) / Math.SQRT2)) / sg;
+}
+
+function bellValSkew(x, mu, sg, alpha){
+  if(alpha === 0) return bellVal(x, mu, sg);
+  const peak = skewNormPeak(sg, alpha);
+  const SNPDF0 = skewNormPDF(mu, mu, sg, 0);
+  const val = skewNormPDF(x, mu, sg, alpha);
+  return parseFloat(((val / peak) * 50).toFixed(4));
+}
+
+function skewNormCDF(x, mu, sg, alpha){
+  const lo = mu - 6*sg, hi = x;
+  if(hi <= lo) return 0;
+  const N = 140; const h = (hi - lo) / N;
+  let s = skewNormPDF(lo, mu, sg, alpha) + skewNormPDF(hi, mu, sg, alpha);
+  for(let i=1;i<N;i++){
+    const xi = lo + i*h;
+    s += (i%2===0 ? 2 : 4) * skewNormPDF(xi, mu, sg, alpha);
+  }
+  return Math.min(1, Math.max(0, s * h / 3));
+}
+
+function erf(x){
+  const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
+  const sign = x<0 ? -1 : 1; x = Math.abs(x);
+  const t = 1/(1+p*x);
+  const y = 1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
+  return sign*y;
+}
+
+function normalCDF(x, mu, sg){ return 0.5*(1+erf((x-mu)/(sg*Math.SQRT2))); }
+function cdfVal(t, mu, sg){ return parseFloat((normalCDF(t, mu, sg)*100).toFixed(2)); }
+
+function calcSkewness(vals){
+  const n = vals.length;
+  if(n < 3) return null;
+  const mean = vals.reduce((a,b)=>a+b,0)/n;
+  const sd = Math.sqrt(vals.reduce((s,v)=>s+(v-mean)**2,0)/(n-1));
+  if(sd === 0) return 0;
+  const m3 = vals.reduce((s,v)=>s+Math.pow((v-mean)/sd,3),0);
+  return (n/((n-1)*(n-2)))*m3;
+}
+
+function calcCohenD(mu1, sd1, n1, mu2, sd2, n2){
+  if(sd1 == null || sd2 == null || n1 < 2 || n2 < 2) return null;
+  const pooledVar = ((n1-1)*sd1*sd1 + (n2-1)*sd2*sd2) / (n1+n2-2);
+  if(pooledVar <= 0) return null;
+  return (mu1 - mu2) / Math.sqrt(pooledVar);
+}
+
+function cohenDtoR(d){ return d / Math.sqrt(d*d + 4); }
+
+function skewLabel(sk){
+  if(sk === null) return '—';
+  const a = Math.abs(sk);
+  if(a < 0.1) return 'Approximately symmetric';
+  if(a < 0.5) return sk>0 ? 'Slight positive skew →' : '← Slight negative skew';
+  if(a < 1.0) return sk>0 ? 'Moderate positive skew →' : '← Moderate negative skew';
+  return sk>0 ? 'Strong positive skew →' : '← Strong negative skew';
+}
+
+const NRM_SD = 10.0;
+const xs = [];
+for(let t=10; t<=80; t+=0.25) xs.push(parseFloat(t.toFixed(2)));
+
+function curve(mu, sg, alpha){ alpha=alpha||0; return xs.map(x => ({x, y: bellValSkew(x, mu, sg, alpha)})); }
+
+function mkMarkers(scores, mu, sg, alpha){
+  alpha = alpha || 0;
+  const freq = {};
+  scores.forEach(s => { freq[s] = (freq[s]||0) + 1; });
+  return Object.keys(freq).map(Number).sort((a,b)=>a-b).map(s => ({
+    x: s,
+    y: parseFloat(bellValSkew(s, mu, sg, alpha).toFixed(4)),
+    count: freq[s]
+  }));
+}
+
+let nrmMu = 50, nrmSkew = 0, examMu = null, examSD = null, examSkew = 0, examScores = [];
+let examBMu = null, examBSD = null, examBSkew = 0, examBScores = [];
+
+function updateFreqTable(scores){
+  const body = document.getElementById('freqBody');
+  if(!scores || scores.length === 0){
+    body.innerHTML='<div style="text-align:center;color:var(--sub);font-size:.78rem;padding:14px 0;">Enter scores and click <b>▶ Compute</b> to see frequency table.</div>';
+    return;
+  }
+  const freq={};
+  scores.forEach(v=>{freq[v]=(freq[v]||0)+1;});
+  const sorted=Object.keys(freq).map(Number).sort((a,b)=>a-b);
+  const maxF=Math.max(...Object.values(freq));
+  let rows='';
+  sorted.forEach(t=>{
+    const c=freq[t], barW=Math.round((c/maxF)*100);
+    rows+=`<tr><td style="font-weight:700;">${t}</td><td style="text-align:center;">${c}</td><td><div class="freq-bar-wrap"><div class="freq-bar" style="width:${barW}%"></div></div></td></tr>`;
+  });
+  body.innerHTML=`<table class="freq-table"><thead><tr><th>T-Score</th><th>Count</th><th>Distribution</th></tr></thead><tbody>${rows}</tbody></table><div style="font-size:.71rem;color:var(--sub);margin-top:6px;text-align:right;">N = ${scores.length} scores · ${sorted.length} unique values</div>`;
+}
+
+function buildGrid(){
+  const tbl = document.getElementById('scoreGrid');
+  tbl.innerHTML='';
+  for(let r=0;r<10;r++){
+    const tr=document.createElement('tr');
+    for(let c=0;c<10;c++){
+      const td=document.createElement('td');
+      const inp=document.createElement('input');
+      inp.type='text'; inp.id=`sc_${r*10+c}`; inp.maxLength=5;
+      inp.setAttribute('inputmode','decimal');
+      inp.addEventListener('input', ()=>{ updateNCount(); syncScores(); });
+      td.appendChild(inp); tr.appendChild(td);
+    }
+    tbl.appendChild(tr);
+  }
+}
+
+function getScores(){
+  const vals=[];
+  for(let i=0;i<100;i++){
+    const v=document.getElementById(`sc_${i}`).value.trim();
+    if(v!==''){const n=parseFloat(v);if(!isNaN(n))vals.push(n);}
+  }
+  return vals;
+}
+
+function updateNCount(){
+  const n=getScores().length;
+  document.getElementById('nCount').textContent=`Filled: ${n} / 100`;
+}
+
+function buildGridB(){
+  const tbl = document.getElementById('scoreGridB');
+  if(!tbl) return;
+  tbl.innerHTML='';
+  for(let r=0;r<10;r++){
+    const tr=document.createElement('tr');
+    for(let c=0;c<10;c++){
+      const td=document.createElement('td');
+      const inp=document.createElement('input');
+      inp.type='text'; inp.id='sb_'+(r*10+c); inp.maxLength=5;
+      inp.setAttribute('inputmode','decimal');
+      inp.addEventListener('input', ()=>{ updateNCountB(); syncScoresB(); });
+      td.appendChild(inp); tr.appendChild(td);
+    }
+    tbl.appendChild(tr);
+  }
+}
+
+function getScoresB(){
+  const vals=[];
+  for(let i=0;i<100;i++){
+    const el=document.getElementById('sb_'+i);
+    if(!el) continue;
+    const v=el.value.trim();
+    if(v!==''){const n=parseFloat(v);if(!isNaN(n))vals.push(n);}
+  }
+  return vals;
+}
+
+function updateNCountB(){
+  const n=getScoresB().length;
+  const el=document.getElementById('nCountB');
+  if(el) el.textContent='Filled: '+n+' / 100';
+}
+
+function clearScores(){
+  for(let i=0;i<100;i++) document.getElementById(`sc_${i}`).value='';
+  updateNCount();
+  examMu=null; examSD=null; examScores=[];
+  myChart.data.datasets[1].data=[];
+  myChart.data.datasets[2].data=[];
+  myChart.update('none');
+  ['stMean','stMed','stMode','stSD','stN','tEM','tES','tESkew','tEP'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('lExam').textContent="Examinee A T-score Distribution (not yet computed)";
+  document.getElementById('skewBox').style.display='none';
+  updateFreqTable([]);
+  if(window._lookupT!=null) runLookup();
+  updateCohenD();
+  syncScores();
+}
+
+function computeExaminee(resetSkew=true){
+  const vals = getScores();
+  if(vals.length < 2){ alert('Please enter at least 2 T-scores.'); return; }
+  const n = vals.length;
+  const mean = vals.reduce((a,b)=>a+b,0)/n;
+  const sorted = [...vals].sort((a,b)=>a-b);
+  const median = n%2===0 ? (sorted[n/2-1]+sorted[n/2])/2 : sorted[Math.floor(n/2)];
+  const freq={}; vals.forEach(v=>{freq[v]=(freq[v]||0)+1;});
+  const maxF=Math.max(...Object.values(freq));
+  const modes=Object.keys(freq).filter(k=>freq[k]===maxF).map(Number).sort((a,b)=>a-b);
+  const modeStr=modes.length>3?modes.slice(0,3).join(', ')+'…':modes.join(', ');
+  const sd = Math.sqrt(vals.reduce((s,v)=>s+(v-mean)**2,0)/(n-1));
+  const skew = calcSkewness(vals);
+
+  examMu = parseFloat(mean.toFixed(2));
+  examSD  = parseFloat(sd.toFixed(2));
+  examScores = vals;
+  
+  const eSkEl = document.getElementById('eSkew');
+  const eSkExact = document.getElementById('eSkewExact');
+  if(resetSkew){
+    examSkew = (skew !== null) ? Math.min(3, Math.max(-3, skew)) : 0;
+    if(eSkEl)    { eSkEl.value = examSkew; eSkEl.style.setProperty('--p', ((examSkew+3)/6*100).toFixed(1)+'%'); }
+    if(eSkExact) eSkExact.value = examSkew.toFixed(3);
+    const eSkLbl = document.getElementById('eSkewLbl');
+    if(eSkLbl) eSkLbl.textContent = (examSkew>=0?'+':'')+examSkew.toFixed(3);
+  }
+
+  document.getElementById('stMean').textContent = mean.toFixed(2);
+  document.getElementById('stMed').textContent  = median.toFixed(2);
+  document.getElementById('stMode').textContent = modeStr;
+  document.getElementById('stSD').textContent   = sd.toFixed(2);
+  document.getElementById('stN').textContent    = n;
+  document.getElementById('tEM').textContent    = examMu;
+  document.getElementById('tES').textContent    = examSD;
+  document.getElementById('tEP').textContent    = 50;
+
+  if(skew !== null){
+    document.getElementById('skewVal').textContent = skew.toFixed(3);
+    document.getElementById('skewInterp').textContent = skewLabel(skew);
+    document.getElementById('skewBox').style.display = 'flex';
+  }
+
+  const eSkTag = examSkew !== 0 ? `, α=${(examSkew>=0?'+':'')+examSkew.toFixed(3)}` : '';
+  document.getElementById('lExam').textContent = `Examinee A T-score Distribution (μ=${examMu}, σ=${examSD}${eSkTag})`;
+
+  myChart.data.datasets[1].data = curve(examMu, examSD, examSkew);
+  myChart.data.datasets[2].data = mkMarkers(examScores, examMu, examSD, examSkew);
+  myChart.update('none');
+
+  updateFreqTable(vals);
+  if(window._lookupT != null) runLookup();
+  updateCohenD();
+  syncScores();
+}
+
+function computeExamineeB(resetSkew=true){
+  const vals = getScoresB();
+  if(vals.length < 2){ alert('Please enter at least 2 T-scores in Examinee B.'); return; }
+  const n = vals.length;
+  const mean = vals.reduce((a,b)=>a+b,0)/n;
+  const sorted = [...vals].sort((a,b)=>a-b);
+  const median = n%2===0 ? (sorted[n/2-1]+sorted[n/2])/2 : sorted[Math.floor(n/2)];
+  const freq={}; vals.forEach(v=>{freq[v]=(freq[v]||0)+1;});
+  const maxF=Math.max(...Object.values(freq));
+  const modes=Object.keys(freq).filter(k=>freq[k]===maxF).map(Number).sort((a,b)=>a-b);
+  const modeStr=modes.length>3?modes.slice(0,3).join(', ')+'\u2026':modes.join(', ');
+  const sd = Math.sqrt(vals.reduce((s,v)=>s+(v-mean)**2,0)/(n-1));
+  const skew = calcSkewness(vals);
+
+  examBMu = parseFloat(mean.toFixed(2));
+  examBSD  = parseFloat(sd.toFixed(2));
+  examBScores = vals;
+
+  const eBSkEl = document.getElementById('eBSkew');
+  const eBSkExact = document.getElementById('eBSkewExact');
+  if(resetSkew){
+    examBSkew = (skew !== null) ? Math.min(3, Math.max(-3, skew)) : 0;
+    if(eBSkEl)    { eBSkEl.value = examBSkew; eBSkEl.style.setProperty('--p', ((examBSkew+3)/6*100).toFixed(1)+'%'); }
+    if(eBSkExact) eBSkExact.value = examBSkew.toFixed(3);
+    const eBSkLbl = document.getElementById('eBSkewLbl');
+    if(eBSkLbl) eBSkLbl.textContent = (examBSkew>=0?'+':'')+examBSkew.toFixed(3);
+  }
+
+  document.getElementById('stBMean').textContent = mean.toFixed(2);
+  document.getElementById('stBMed').textContent  = median.toFixed(2);
+  document.getElementById('stBMode').textContent = modeStr;
+  document.getElementById('stBSD').textContent   = sd.toFixed(2);
+  document.getElementById('stBN').textContent    = n;
+  document.getElementById('tBM').textContent     = examBMu;
+  document.getElementById('tBS').textContent     = examBSD;
+  document.getElementById('tBP').textContent     = 50;
+
+  if(skew !== null){
+    document.getElementById('skewValB').textContent = skew.toFixed(3);
+    document.getElementById('skewInterpB').textContent = skewLabel(skew);
+    document.getElementById('skewBoxB').style.display = 'flex';
+  }
+
+  const eBSkTag = examBSkew !== 0 ? ', \u03b1='+(examBSkew>=0?'+':'')+examBSkew.toFixed(3) : '';
+  document.getElementById('lExamB').textContent = 'Examinee B T-score Distribution (\u03bc='+examBMu+', \u03c3='+examBSD+eBSkTag+')';
+
+  myChart.data.datasets[3].data = curve(examBMu, examBSD, examBSkew);
+  myChart.data.datasets[4].data = mkMarkers(examBScores, examBMu, examBSD, examBSkew);
+  myChart.update('none');
+
+  if(window._lookupT != null) runLookup();
+  updateCohenD();
+  syncScoresB();
+}
+
+function clearScoresB(){
+  for(let i=0;i<100;i++){ const el=document.getElementById(`sb_${i}`); if(el) el.value=''; }
+  updateNCountB();
+  examBMu=null; examBSD=null; examBScores=[];
+  myChart.data.datasets[3].data=[];
+  myChart.data.datasets[4].data=[];
+  myChart.update('none');
+  ['stBMean','stBMed','stBMode','stBSD','stBN','tBM','tBS','tBSkew','tBP'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('lExamB').textContent='Examinee B T-score Distribution (not yet computed)';
+  document.getElementById('skewBoxB').style.display='none';
+  if(window._lookupT!=null) runLookup();
+  updateCohenD();
+  syncScoresB();
+}
+
+const myChart = new Chart(document.getElementById('ch').getContext('2d'), {
+  type: 'scatter',
+  data: { datasets: [
+    { label: 'Normative', type:'line', data: curve(nrmMu, NRM_SD), borderColor:'#1565c0', backgroundColor:'rgba(21,101,192,.07)', borderWidth:3, pointRadius:0, fill:false, tension:.4, order:5 },
+    { label: "Examinee's T-score Distribution", type:'line', data: [], borderColor:'#e67e22', backgroundColor:'rgba(230,126,34,.08)', borderWidth:3, pointRadius:0, fill:false, tension:.4, order:3 },
+    { label: 'Examinee Points', data: [], type:'scatter', pointRadius:8, pointHoverRadius:10, backgroundColor:'rgba(230,126,34,.90)', borderColor:'#c0392b', borderWidth:1.5, showLine:false, order:1 },
+    { label: "Examinee B T-score Distribution", type:'line', data: [], borderColor:'#27ae60', backgroundColor:'rgba(39,174,96,.08)', borderWidth:3, pointRadius:0, fill:false, tension:.4, order:2 },
+    { label: 'Examinee B Points', data: [], type:'scatter', pointRadius:8, pointHoverRadius:10, backgroundColor:'rgba(39,174,96,.90)', borderColor:'#1e8449', borderWidth:1.5, showLine:false, order:0 }
+  ]},
+  options:{ responsive:true, animation:{duration:0}, interaction:{mode:'nearest',intersect:false}, plugins:{legend:{display:false}}, scales:{x:{type:'linear',min:10,max:80,title:{display:true,text:'T-Score',font:{size:14,weight:'bold'}}}, y:{min:0,max:60,title:{display:true,text:'Relative Frequency (Peak = 50)',font:{size:13,weight:'bold'}}}}}
+});
+
+function runLookup(){
+  const raw = document.getElementById('lookupInput').value.trim();
+  const res = document.getElementById('lookupResults');
+  if(raw==='') res.innerHTML='<div class="lr-empty">Enter a T-score to see cumulative percentile.</div>';
+  const t = parseFloat(raw);
+  if(isNaN(t)||t<10||t>80) res.innerHTML='<div class="lr-empty" style="color:#c0392b;">⚠ Please enter a value between 10 and 80.</div>';
+  window._lookupT = t;
+  const nv = cdfVal(t, nrmMu, NRM_SD);
+  res.innerHTML = `<div class="lr lr-norm"><span class="curve-name">🔵 Normative</span><span class="count-val">${nv.toFixed(2)}%</span></div>`;
+  myChart.update('none');
+}
+
+function updateCohenD(){
+  const body = document.getElementById('cohendCardBody');
+  if(!body) return;
+  const NRM_N = 100;
+  const nMu = nrmMu, nSd = NRM_SD, nN = NRM_N;
+  const aMu = examMu,  aSd = examSD,  aN = examScores.length;
+  const bMu = examBMu, bSd = examBSD, bN = examBScores.length;
+  const hasA = aMu !== null && aSd !== null && aN >= 2;
+  const hasB = bMu !== null && bSd !== null && bN >= 2;
+
+  if(!hasA && !hasB){
+    body.innerHTML = '<div class="lr-empty">Compute at least one examinee dataset to see effect sizes.</div>';
+    return;
+  }
+
+  const pairs = [];
+  if(hasA) pairs.push({ label:'🟠 Exam A vs 🔵 Norm', mu1:aMu, sd1:aSd, n1:aN, mu2:nMu, sd2:nSd, n2:nN });
+  if(hasB) pairs.push({ label:'🟢 Exam B vs 🔵 Norm', mu1:bMu, sd1:bSd, n1:bN, mu2:nMu, sd2:nSd, n2:nN });
+
+  let rows = '';
+  pairs.forEach(p => {
+    const d = calcCohenD(p.mu1, p.sd1, p.n1, p.mu2, p.sd2, p.n2);
+    if(d === null){ rows += `<tr><td>${p.label}</td><td colspan="2" style="color:#999;">N/A</td></tr>`; return; }
+    const r = cohenDtoR(d);
+    rows += `<tr><td>${p.label}</td><td>${d.toFixed(3)}</td><td>${r.toFixed(3)}</td></tr>`;
+  });
+
+  body.innerHTML = `<table class="cd-table"><thead><tr><th>Comparison</th><th>Cohen's d</th><th>Effect r</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function mp(mu){ return ((mu-10)/70*100).toFixed(1)+'%'; }
+
+function upNorm(){
+  nrmMu = +document.getElementById('nMu').value;
+  const skEl = document.getElementById('nSkew');
+  nrmSkew = skEl ? +skEl.value : 0;
+  document.getElementById('nMV').textContent = nrmMu.toFixed(1);
+  document.getElementById('nMu').style.setProperty('--p', mp(nrmMu));
+  
+  if(skEl){
+    const skLbl = document.getElementById('nSkewLbl');
+    if(skLbl) skLbl.textContent = (nrmSkew >= 0 ? '+' : '') + nrmSkew.toFixed(1);
+    const skPct = ((nrmSkew + 3) / 6 * 100).toFixed(1);
+    skEl.style.setProperty('--p', skPct + '%');
+  }
+
+  myChart.data.datasets[0].data = curve(nrmMu, NRM_SD, nrmSkew);
+  myChart.update('none');
+  document.getElementById('tNM').textContent = nrmMu.toFixed(1);
+  if(window._lookupT!=null) runLookup();
+}
+
+function updateCISlider(el){
+  const v = +el.value;
+  document.getElementById('ciLbl').textContent = v + '%';
+  const pct = ((v - 50) / 45 * 100).toFixed(1);
+  el.style.setProperty('--p', pct + '%');
+}
+
+function setCILevel(v){
+  const sl = document.getElementById('ciLvl');
+  if(!sl) return;
+  sl.value = v;
+  updateCISlider(sl);
+}
+
+function setSkew(v){
+  const sl = document.getElementById('nSkew');
+  if(!sl) return;
+  sl.value = v;
+  upNorm();
+}
+
+function updateExamSkew(el){
+  const v = +el.value;
+  const lbl = document.getElementById('eSkewLbl');
+  if(lbl) lbl.textContent = (v>=0?'+':'')+v.toFixed(3);
+  const exEl = document.getElementById('eSkewExact');
+  if(exEl) exEl.value = v.toFixed(3);
+  if(examMu !== null){ examSkew=v; computeExaminee(false); }
+}
+
+function setExamSkew(v){
+  const sl = document.getElementById('eSkew');
+  if(!sl) return;
+  sl.value = v;
+  updateExamSkew(sl);
+}
+
+function setExamSkewExact(raw){
+  const v = parseFloat(raw);
+  if(isNaN(v)) return;
+  const clamped = Math.min(3, Math.max(-3, v));
+  const sl = document.getElementById('eSkew');
+  if(sl){ sl.value = clamped; updateExamSkew(sl); }
+}
+
+function updateExamBSkew(el){
+  const v = +el.value;
+  const lbl = document.getElementById('eBSkewLbl');
+  if(lbl) lbl.textContent = (v>=0?'+':'')+v.toFixed(3);
+  const exBEl = document.getElementById('eBSkewExact');
+  if(exBEl) exBEl.value = v.toFixed(3);
+  if(examBMu !== null){ examBSkew=v; computeExamineeB(false); }
+}
+
+function setExamBSkew(v){
+  const sl = document.getElementById('eBSkew');
+  if(!sl) return;
+  sl.value = v;
+  updateExamBSkew(sl);
+}
+
+function setExamBSkewExact(raw){
+  const v = parseFloat(raw);
+  if(isNaN(v)) return;
+  const clamped = Math.min(3, Math.max(-3, v));
+  const sl = document.getElementById('eBSkew');
+  if(sl){ sl.value = clamped; updateExamBSkew(sl); }
+}
+
+function setNM(v){ document.getElementById('nMu').value=v; upNorm(); }
+
+let af=null, aDir=1, aMu=50;
+function startAnim(){ if(af)return; document.getElementById('bPl').disabled=true; document.getElementById('bSt').disabled=false; aMu=nrmMu; tick(); }
+function tick(){ const sp2=+document.getElementById('spd').value; document.getElementById('sLbl').textContent='Speed '+sp2; aMu+=aDir*sp2*.12; if(aMu>=80){aMu=80;aDir=-1;} if(aMu<=10){aMu=10;aDir=1;} document.getElementById('nMu').value=aMu; upNorm(); af=requestAnimationFrame(tick); }
+function stopAnim(){ if(af){cancelAnimationFrame(af);af=null;} document.getElementById('bPl').disabled=false; document.getElementById('bSt').disabled=true; }
+function resetAll(){ stopAnim(); aMu=50; aDir=1; document.getElementById('nMu').value=50; upNorm(); document.getElementById('spd').value=4; document.getElementById('sLbl').textContent='Speed 4'; }
+
+function snapPNG(){ const a=document.createElement('a'); a.download=`tscore_bell_norm_exam_nmu${nrmMu.toFixed(1)}.png`; a.href=document.getElementById('ch').toDataURL('image/png'); a.click(); const m=document.getElementById('snapMsg'); m.style.opacity=1; setTimeout(()=>m.style.opacity=0,2500); }
+
+function syncScores(){
+  const vals = [];
+  for(let i=0;i<100;i++){
+    const el = document.getElementById('sc_'+i);
+    vals.push(el ? el.value : '');
+  }
+  document.getElementById('savedScores').textContent = JSON.stringify(vals);
+}
+
+function syncScoresB(){
+  const vals = [];
+  for(let i=0;i<100;i++){
+    const el = document.getElementById('sb_'+i);
+    vals.push(el ? el.value : '');
+  }
+  const sd = document.getElementById('savedScoresB');
+  if(sd) sd.textContent = JSON.stringify(vals);
+}
+
+function restoreScores(){
+  const raw = document.getElementById('savedScores').textContent.trim();
+  if(!raw) return;
+  try {
+    const vals = JSON.parse(raw);
+    if(!Array.isArray(vals)) return;
+    vals.forEach((v,i)=>{
+      const el = document.getElementById('sc_'+i);
+      if(el && v !== '') el.value = v;
+    });
+    updateNCount();
+  } catch(e){}
+}
+
+function restoreScoresB(){
+  const sd = document.getElementById('savedScoresB');
+  if(!sd) return;
+  const raw = sd.textContent.trim();
+  if(!raw) return;
+  try {
+    const vals = JSON.parse(raw);
+    if(!Array.isArray(vals)) return;
+    vals.forEach((v,i)=>{ const el=document.getElementById('sb_'+i); if(el&&v!=='') el.value=v; });
+    updateNCountB();
+  } catch(e){}
+}
+
+buildGrid();
+buildGridB();
+restoreScores();
+restoreScoresB();
+upNorm();
+</script>
+</body>
+</html>
